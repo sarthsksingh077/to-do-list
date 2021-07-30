@@ -10,6 +10,7 @@ document.getElementById("date").innerHTML = d + "/" + m + "/" + y + " (" + x + "
 const inputBox = document.querySelector(".inputField input");
 const addBtn = document.querySelector(".inputField button");
 const todoList = document.querySelector(".todolist");
+const completed = document.querySelector(".completed");
 const deleteAllbtn = document.querySelector(".footer button");
 
 inputBox.onkeyup = () => {
@@ -20,8 +21,6 @@ inputBox.onkeyup = () => {
         addBtn.classList.remove("active");
     }
 }
-
-showTask();
 
 addBtn.onclick = () => {
         let userData = inputBox.value;
@@ -37,28 +36,39 @@ addBtn.onclick = () => {
     }
     //function to add task list inside ul
 function showTask() {
+    let xyz = localStorage.getItem("completed");
+    if (xyz == null) {
+        listArr1 = [];
+    } else {
+        listArr1 = JSON.parse(xyz);
+    }
     let getLocalStorage = localStorage.getItem("New Todo");
     if (getLocalStorage == null) {
         listArr = [];
     } else {
         listArr = JSON.parse(getLocalStorage);
     }
-    const pendingNum = document.querySelector(".pendingTasks");
-    pendingNum.textContent = listArr.length;
-    if (listArr.length > 0) {
+    const pendingTasksNumb = document.querySelector(".pendingTasks");
+    pendingTasksNumb.textContent = listArr.length;
+    if (listArr.length > 0 || listArr1.length > 0) {
         deleteAllbtn.classList.add("active");
     } else {
         deleteAllbtn.classList.remove("active");
     }
     let newLiTag = "";
     listArr.forEach((element, index) => {
-        newLiTag += `<li> ${element} <span onclick="deleteTask(${index})";><i class ="fas fa-trash"></i></span></li>`;
+        newLiTag += `<li> ${element}<button onclick="deleteTask(${index})"><i class="fas fa-trash"></i></button> 
+                                    <button onclick="Task(${index})"><i class="fas fa-check"></i></button></li>`;
     });
+    let newLi = "";
+    listArr1.forEach((element, index) => {
+        newLi += `<li>${element}<button onclick="deleteTask1(${index})"><i class="fas fa-trash"></i></button></li>`
+    });
+    completed.innerHTML = newLi;
     todoList.innerHTML = newLiTag;
     inputBox.value = "";
 }
 
-//delete task fucntion
 function deleteTask(index) {
     let getLocalStorage = localStorage.getItem("New Todo");
     listArr = JSON.parse(getLocalStorage);
@@ -68,9 +78,28 @@ function deleteTask(index) {
     showTask();
 }
 
-//delete all task function
+function deleteTask1(index) {
+    let xyz = localStorage.getItem("completed");
+    listArr1 = JSON.parse(xyz);
+    listArr1.splice(index, 1);
+    localStorage.setItem("completed", JSON.stringify(listArr1));
+    showTask();
+}
+
+function Task(index) {
+    let getLocalStorage = localStorage.getItem("New Todo");
+    listArr = JSON.parse(getLocalStorage);
+    listArr1.push(listArr[index]);
+    listArr.splice(index, 1);
+    localStorage.setItem("New Todo", JSON.stringify(listArr));
+    localStorage.setItem("completed", JSON.stringify(listArr1));
+    showTask();
+}
+
 deleteAllbtn.onclick = () => {
     listArr = [];
+    listArr1 = [];
     localStorage.setItem("New Todo", JSON.stringify(listArr));
+    localStorage.setItem("completed", JSON.stringify(listArr1));
     showTask();
 }
